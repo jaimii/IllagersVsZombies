@@ -1,4 +1,4 @@
-package project.kompass.illagerVZombies;
+package project.kompass.illagerVZombies.IllagerVZombies;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

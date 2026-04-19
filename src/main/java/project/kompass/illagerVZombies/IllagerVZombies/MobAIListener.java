@@ -1,4 +1,4 @@
-package project.kompass.illagerVZombies;
+package project.kompass.illagerVZombies.IllagerVZombies;
 
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;

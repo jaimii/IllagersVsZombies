@@ -3,7 +3,7 @@ plugins {
     id("xyz.jpenilla.run-paper") version "3.0.2"
 }
 
-group = "project.kompass.IllagerVZombies.IllagerVZombies"
+group = "project.kompass.illagerVZombies.IllagerVZombies"
 version = "1.0.0"
 
 java {
