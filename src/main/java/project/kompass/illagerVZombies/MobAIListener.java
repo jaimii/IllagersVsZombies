@@ -5,7 +5,7 @@ import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Giant;
-import 	net.minecraft.world.entity.monster.zombie.Zombie
+import 	net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.raid.Raider;
 
