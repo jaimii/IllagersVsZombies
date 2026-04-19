@@ -9,7 +9,6 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.raid.Raider;
 
-// FIXED: Removed .v1_21_R1. from these imports
 import org.bukkit.craftbukkit.entity.CraftGiant;
 import org.bukkit.craftbukkit.entity.CraftRaider;
 import org.bukkit.craftbukkit.entity.CraftZombie;
