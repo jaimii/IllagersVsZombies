@@ -1,8 +1,10 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven("https://papermc.io")
+        maven {
+            url = uri("https://repo.papermc.io/repository/maven-public/")
+        }
     }
 }
 
-rootProject.name = "RaidersVsGiants"
+rootProject.name = "IllagersVsZombies"

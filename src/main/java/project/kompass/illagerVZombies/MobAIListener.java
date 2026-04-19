@@ -1,3 +1,5 @@
+package project.kompass.illagerVZombies;
+
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -55,4 +57,5 @@ public class MobAIListener implements Listener {
                 nmsGiant.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(48.0);
             }
         }
-    }}
+    }
+}
