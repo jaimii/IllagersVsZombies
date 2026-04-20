@@ -10,7 +10,7 @@ public final class IllagerVZombies extends JavaPlugin {
         // Plugin startup logic
         getServer().getPluginManager().registerEvents(new MobAIListener(), this);
 
-        getLogger().info("Raiders vs Giants AI has been enabled!");
+        getLogger().info("Illager, Piglin and Zombie Behaviours are now modified!");
     }
 
     @Override
