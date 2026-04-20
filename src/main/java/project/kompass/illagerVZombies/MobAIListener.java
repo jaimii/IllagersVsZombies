@@ -25,15 +25,15 @@ public class MobAIListener implements Listener {
         // 1. Handle ALL RAIDERS
         if (event.getEntity() instanceof org.bukkit.entity.Raider bRaider) {
             Raider nmsRaider = ((CraftRaider) bRaider).getHandle();
-            nmsRaider.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsRaider, Giant.class, 16.0F, 1.0D, 1.2D));
+            nmsRaider.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsRaider, Giant.class, 24.0F, 1.0D, 1.2D));
             nmsRaider.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsRaider, Zombie.class, true));
         }
 
         // 2. Handle WITCHES
         else if (event.getEntity() instanceof org.bukkit.entity.Witch bWitch) {
             Witch nmsWitch = ((CraftWitch) bWitch).getHandle();
-            nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Giant.class, 16.0F, 1.0D, 1.2D));
-            nmsWitch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsWitch, Zombie.class, true));
+            nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Giant.class, 24.0F, 1.0D, 1.2D));
+            nmsWitch.goalSelector.addGoal(2, new AvoidEntityGoal<>(nmsWitch, Zombie.class, 16.0F, 1.0D, 1.2D));
         }
 
         // 3. Handle ZOMBIES
