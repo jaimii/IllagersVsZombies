@@ -87,11 +87,12 @@ public class MobAIListener implements Listener {
             // FEAR GOALS
             nmsPiglin.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsPiglin, Giant.class, 24.0F, 1.0D, 1.2D));
             nmsPiglin.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsPiglin, Warden.class, 16.0F, 1.0D, 1.2D));
-            nmsPiglin.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsPiglin, Zombie.class,  16.0F, 1.0D, 1.2D));
+            nmsPiglin.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsPiglin, Zombie.class, 16.0F, 1.0D, 1.2D));
 
-            // ATTACK GOALS
-            nmsPiglin.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsPiglin, Raider.class, true));
-            nmsPiglin.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(nmsPiglin, Witch.class, true));
+            // ATTACK GOALS - Priority 1 to override Brain neutrality
+            nmsPiglin.goalSelector.addGoal(2, new MeleeAttackGoal(nmsPiglin, 1.0D, true));
+            nmsPiglin.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsPiglin, Raider.class, true));
+            nmsPiglin.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsPiglin, Witch.class, true));
         }
 
         // 6. Handle PIGLIN BRUTES
@@ -102,11 +103,12 @@ public class MobAIListener implements Listener {
             // FEAR GOALS
             nmsBrute.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsBrute, Giant.class, 24.0F, 1.0D, 1.2D));
             nmsBrute.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsBrute, Warden.class, 16.0F, 1.0D, 1.2D));
-            nmsBrute.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsBrute, Zombie.class,  16.0F, 1.0D, 1.2D));
+            nmsBrute.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsBrute, Zombie.class, 16.0F, 1.0D, 1.2D));
 
             // ATTACK GOALS
-            nmsBrute.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsBrute, Raider.class, true));
-            nmsBrute.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(nmsBrute, Witch.class, true));
+            nmsBrute.goalSelector.addGoal(2, new MeleeAttackGoal(nmsBrute, 1.0D, true));
+            nmsBrute.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsBrute, Raider.class, true));
+            nmsBrute.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsBrute, Witch.class, true));
         }
     }
 }
