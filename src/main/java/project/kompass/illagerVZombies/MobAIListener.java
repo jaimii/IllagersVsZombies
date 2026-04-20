@@ -6,6 +6,7 @@ import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.raid.Raider;
 
@@ -26,6 +27,7 @@ public class MobAIListener implements Listener {
         if (event.getEntity() instanceof org.bukkit.entity.Raider bRaider) {
             Raider nmsRaider = ((CraftRaider) bRaider).getHandle();
             nmsRaider.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsRaider, Giant.class, 24.0F, 1.0D, 1.2D));
+            nmsRaider.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsRaider, Warden.class, 16.0F, 1.0D, 1.2D));
             nmsRaider.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsRaider, Zombie.class, true));
         }
 
@@ -33,6 +35,7 @@ public class MobAIListener implements Listener {
         else if (event.getEntity() instanceof org.bukkit.entity.Witch bWitch) {
             Witch nmsWitch = ((CraftWitch) bWitch).getHandle();
             nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Giant.class, 24.0F, 1.0D, 1.2D));
+            nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Warden.class, 16.0F, 1.0D, 1.2D));
             nmsWitch.goalSelector.addGoal(2, new AvoidEntityGoal<>(nmsWitch, Zombie.class, 16.0F, 1.0D, 1.2D));
         }
 
