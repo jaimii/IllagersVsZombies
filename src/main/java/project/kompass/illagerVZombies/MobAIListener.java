@@ -4,13 +4,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.player.Player;
 
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.entity.monster.zombie.Zombie;
@@ -19,12 +13,15 @@ import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
+
 import org.bukkit.craftbukkit.entity.CraftPiglin;
 import org.bukkit.craftbukkit.entity.CraftPiglinBrute;
 import org.bukkit.craftbukkit.entity.CraftGiant;
 import org.bukkit.craftbukkit.entity.CraftRaider;
 import org.bukkit.craftbukkit.entity.CraftZombie;
 import org.bukkit.craftbukkit.entity.CraftWitch;
+
+import org.bukkit.potion.PotionEffectType;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -52,25 +49,23 @@ public class MobAIListener implements Listener {
         else if (event.getEntity() instanceof org.bukkit.entity.Witch bWitch) {
             Witch nmsWitch = ((CraftWitch) bWitch).getHandle();
 
-            // 1. CLEAR EXISTING GOALS
+            // CLEAR ALL default AI to remove the 3-second delay hardcoded in vanilla
             nmsWitch.goalSelector.removeAllGoals(goal -> true);
             nmsWitch.targetSelector.removeAllGoals(goal -> true);
 
-            // 2. ADD SURVIVAL & IDLE GOALS (Essential for natural behavior)
-            nmsWitch.goalSelector.addGoal(0, new FloatGoal(nmsWitch));
-            nmsWitch.goalSelector.addGoal(2, new RangedAttackGoal(nmsWitch, 1.0D, 60, 10.0F));
-            nmsWitch.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(nmsWitch, 1.0D));
-            nmsWitch.goalSelector.addGoal(4, new LookAtPlayerGoal(nmsWitch, Player.class, 8.0F));
-            nmsWitch.goalSelector.addGoal(5, new RandomLookAroundGoal(nmsWitch));
+            // IDLE GOALS
+            nmsWitch.goalSelector.addGoal(0, new net.minecraft.world.entity.ai.goal.FloatGoal(nmsWitch));
+            nmsWitch.goalSelector.addGoal(3, new net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal(nmsWitch, 1.0D));
 
-            // 3. FEAR GOALS
-            nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Giant.class, 24.0F, 1.0D, 1.2D));
-            nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Warden.class, 16.0F, 1.0D, 1.2D));
-            nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Zombie.class, 16.0F, 1.0D, 1.2D));
+            // CUSTOM RANGED ATTACK GOAL
+            // Parameters: (Mob, MoveSpeed, AttackInterval, MaxRange)
+            // We set AttackInterval to 15 (0.75 seconds) for a "Machine Gun" effect
+            nmsWitch.goalSelector.addGoal(2, new net.minecraft.world.entity.ai.goal.RangedAttackGoal(nmsWitch, 1.0D, 15, 12.0F));
 
-            // 4. ATTACK GOALS
-            nmsWitch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsWitch, Piglin.class, true));
-            nmsWitch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsWitch, PiglinBrute.class, true));
+            // TARGET SELECTION
+            // Ensure Witches still target Zombies so they use the Potion Filtering we wrote earlier
+            nmsWitch.targetSelector.addGoal(1, new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<>(nmsWitch, net.minecraft.world.entity.monster.zombie.Zombie.class, true));
+            nmsWitch.targetSelector.addGoal(2, new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<>(nmsWitch, net.minecraft.world.entity.monster.piglin.Piglin.class, true));
         }
 
         // 3. Handle ZOMBIES
@@ -132,6 +127,29 @@ public class MobAIListener implements Listener {
             nmsBrute.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsBrute, Witch.class, true));
 
             nmsBrute.goalSelector.addGoal(2, new MeleeAttackGoal(nmsBrute, 1.0D, true));
+        }
+    }
+    @EventHandler
+    public void onWitchThrow(org.bukkit.event.entity.ProjectileLaunchEvent event) {
+        // Check if a Witch is throwing a potion
+        if (event.getEntity() instanceof org.bukkit.entity.ThrownPotion potion &&
+                event.getEntity().getShooter() instanceof org.bukkit.entity.Witch witch) {
+
+            // Get the Witch's current target
+            org.bukkit.entity.LivingEntity target = witch.getTarget();
+
+            // If the target is a Zombie, force the potion to be Instant Health
+            if (target instanceof org.bukkit.entity.Zombie) {
+                org.bukkit.inventory.ItemStack healthPotion = new org.bukkit.inventory.ItemStack(org.bukkit.Material.SPLASH_POTION);
+                org.bukkit.inventory.meta.PotionMeta meta = (org.bukkit.inventory.meta.PotionMeta) healthPotion.getItemMeta();
+
+                // Set to Instant Health II (Strong)
+                meta.setBasePotionType(org.bukkit.potion.PotionType.STRONG_HEALING);
+                meta.addCustomEffect(new org.bukkit.potion.PotionEffect(PotionEffectType.INSTANT_HEALTH, 1, 1), true);
+
+                healthPotion.setItemMeta(meta);
+                potion.setItem(healthPotion);
+            }
         }
     }
 }
