@@ -4,6 +4,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.player.Player;
+
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.monster.warden.Warden;
@@ -11,7 +19,6 @@ import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
-
 import org.bukkit.craftbukkit.entity.CraftPiglin;
 import org.bukkit.craftbukkit.entity.CraftPiglinBrute;
 import org.bukkit.craftbukkit.entity.CraftGiant;
@@ -45,12 +52,23 @@ public class MobAIListener implements Listener {
         else if (event.getEntity() instanceof org.bukkit.entity.Witch bWitch) {
             Witch nmsWitch = ((CraftWitch) bWitch).getHandle();
 
-            //FEAR GOALS
+            // 1. CLEAR EXISTING GOALS
+            nmsWitch.goalSelector.removeAllGoals(goal -> true);
+            nmsWitch.targetSelector.removeAllGoals(goal -> true);
+
+            // 2. ADD SURVIVAL & IDLE GOALS (Essential for natural behavior)
+            nmsWitch.goalSelector.addGoal(0, new FloatGoal(nmsWitch));
+            nmsWitch.goalSelector.addGoal(2, new RangedAttackGoal(nmsWitch, 1.0D, 60, 10.0F));
+            nmsWitch.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(nmsWitch, 1.0D));
+            nmsWitch.goalSelector.addGoal(4, new LookAtPlayerGoal(nmsWitch, Player.class, 8.0F));
+            nmsWitch.goalSelector.addGoal(5, new RandomLookAroundGoal(nmsWitch));
+
+            // 3. FEAR GOALS
             nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Giant.class, 24.0F, 1.0D, 1.2D));
             nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Warden.class, 16.0F, 1.0D, 1.2D));
-            nmsWitch.goalSelector.addGoal(2, new AvoidEntityGoal<>(nmsWitch, Zombie.class, 16.0F, 1.0D, 1.2D));
+            nmsWitch.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsWitch, Zombie.class, 16.0F, 1.0D, 1.2D));
 
-            //ATTACK GOALS
+            // 4. ATTACK GOALS
             nmsWitch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsWitch, Piglin.class, true));
             nmsWitch.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsWitch, PiglinBrute.class, true));
         }
@@ -59,7 +77,7 @@ public class MobAIListener implements Listener {
         else if (event.getEntity() instanceof org.bukkit.entity.Zombie bZombie) {
             Zombie nmsZombie = ((CraftZombie) bZombie).getHandle();
 
-            //FEAR GOALS
+            //ATTACK GOALS
             nmsZombie.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(nmsZombie, Raider.class, true));
             nmsZombie.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(nmsZombie, Witch.class, true));
         }
@@ -84,18 +102,22 @@ public class MobAIListener implements Listener {
             bPiglin.setImmuneToZombification(true);
             Piglin nmsPiglin = ((CraftPiglin) bPiglin).getHandle();
 
+            // CLEAR BRAIN MEMORIES
+            nmsPiglin.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+
             // FEAR GOALS
             nmsPiglin.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsPiglin, Giant.class, 24.0F, 1.0D, 1.2D));
             nmsPiglin.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsPiglin, Warden.class, 16.0F, 1.0D, 1.2D));
             nmsPiglin.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsPiglin, Zombie.class, 16.0F, 1.0D, 1.2D));
 
-            // ATTACK GOALS - Priority 1 to override Brain neutrality
-            nmsPiglin.goalSelector.addGoal(2, new MeleeAttackGoal(nmsPiglin, 1.0D, true));
+            // ATTACK GOALS
             nmsPiglin.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsPiglin, Raider.class, true));
             nmsPiglin.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsPiglin, Witch.class, true));
+
+            nmsPiglin.goalSelector.addGoal(2, new MeleeAttackGoal(nmsPiglin, 1.0D, true));
         }
 
-        // 6. Handle PIGLIN BRUTES
+// 6. Handle PIGLIN BRUTES
         else if (event.getEntity() instanceof org.bukkit.entity.PiglinBrute bBrute) {
             bBrute.setImmuneToZombification(true);
             PiglinBrute nmsBrute = ((CraftPiglinBrute) bBrute).getHandle();
@@ -106,9 +128,10 @@ public class MobAIListener implements Listener {
             nmsBrute.goalSelector.addGoal(1, new AvoidEntityGoal<>(nmsBrute, Zombie.class, 16.0F, 1.0D, 1.2D));
 
             // ATTACK GOALS
-            nmsBrute.goalSelector.addGoal(2, new MeleeAttackGoal(nmsBrute, 1.0D, true));
             nmsBrute.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsBrute, Raider.class, true));
             nmsBrute.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsBrute, Witch.class, true));
+
+            nmsBrute.goalSelector.addGoal(2, new MeleeAttackGoal(nmsBrute, 1.0D, true));
         }
     }
 }
