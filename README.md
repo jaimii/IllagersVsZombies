@@ -1,4 +1,4 @@
-##IllagersVZombies is a Minecraft plugin that modifies Illagers, Piglin, and Zombie behaviour.
+## IllagersVZombies is a Minecraft plugin that modifies Illagers, Piglin, and Zombie behaviour.
 Designed for Project: Kompass.
 
 This plugin modifies the following mob behaviours:
